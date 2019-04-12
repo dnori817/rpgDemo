@@ -90,8 +90,30 @@ let WorldScene = new Phaser.Class({
 			repeat: -1
 	});
 
+
+	//obstacle collision
 	this.physics.add.collider(this.player, obstacles);
+
+	//enemy location zones
+	this.spawns = this.physics.add.group({ classType: Phaser.GameObjects.Zone });
+        for(var i = 0; i < 30; i++) {
+            var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+            var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
+            // parameters are x, y, width, height
+            this.spawns.create(x, y, 20, 20);            
+        }        
+        this.physics.add.overlap(this.player, this.spawns, this.onMeetEnemy, false, this);
 	},
+
+	onMeetEnemy: function(player, zone) { 
+		       // we move the zone to some other location
+        zone.x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
+				zone.y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);  // shake the world
+				this.cameras.main.flash(900);    
+				this.cameras.main.shake(600);    
+        this.cameras.main.fade(900);    
+		// start battle
+			},
 
 	update: function (time, delta)
 {
@@ -118,6 +140,7 @@ let WorldScene = new Phaser.Class({
 				}  
 				
 				
+				//player animation direction
 				if (this.cursors.left.isDown)
         {
 						this.player.anims.play('left', true);
@@ -154,7 +177,9 @@ let config = {
 	physics: {
 			default: 'arcade',
 			arcade: {
-					gravity: { y: 0 }
+					gravity: { y: 0 },
+					debug: true
+
 			}
 	},
 	scene: [
